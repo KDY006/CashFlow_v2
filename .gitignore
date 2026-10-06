@@ -24,3 +24,5 @@ Thumbs.db
 /CashFlow_AI_Service/__pycache__/
 /CashFlow_AI_Service/venv/
 /CashFlow_AI_Service/env/
+
+.claude
