@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 
@@ -7,9 +7,11 @@ export default function Login() {
   const { login } = useAuth();
   const { showToast } = useData();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email, setEmail] = useState('nvduy180706@gmail.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState(() => location.state?.email || 'nvduy180706@gmail.com');
+  const [password, setPassword] = useState(() => location.state?.password || '123456');
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
 
   const handleSubmit = (e) => {
@@ -188,12 +190,24 @@ export default function Login() {
             <div className="form-group-field" style={{ marginBottom: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <label className="form-label-custom" style={{ margin: 0 }}>MẬT KHẨU</label>
-                <NavLink to="/forgot-password" style={{ fontSize: '0.78rem', fontWeight: 600, color: '#10b981' }}>
-                  Quên mật khẩu?
-                </NavLink>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      background: 'none', border: 'none', color: '#64748b',
+                      fontSize: '0.78rem', cursor: 'pointer', padding: 0
+                    }}
+                  >
+                    {showPassword ? 'Ẩn' : 'Hiện'}
+                  </button>
+                  <NavLink to="/forgot-password" style={{ fontSize: '0.78rem', fontWeight: 600, color: '#10b981' }}>
+                    Quên mật khẩu?
+                  </NavLink>
+                </div>
               </div>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 className="input-custom"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

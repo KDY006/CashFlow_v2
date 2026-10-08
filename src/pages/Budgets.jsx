@@ -18,7 +18,7 @@ export default function Budgets() {
   const [activeTab, setActiveTab] = useState('categories'); // 'categories' | 'budgets'
 
   // Month navigation for Budgets
-  const [currentDate, setCurrentDate] = useState(new Date('2026-05-01'));
+  const [currentDate, setCurrentDate] = useState(() => new Date());
 
   const changeMonth = (diff) => {
     const next = new Date(currentDate);
@@ -252,6 +252,19 @@ export default function Budgets() {
                 }}
               >
                 <i className="bi bi-chevron-right"></i>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentDate(new Date())}
+                title="Về tháng hiện tại"
+                style={{
+                  border: 'none', background: '#ecfdf5', color: '#059669',
+                  fontWeight: 700, fontSize: '0.8rem', padding: '6px 12px',
+                  borderRadius: '20px', marginLeft: '6px', cursor: 'pointer'
+                }}
+              >
+                Hiện tại
               </button>
             </div>
 

@@ -45,22 +45,26 @@ export function AuthProvider({ children }) {
     return { status: true, message: 'Đăng nhập thành công!', user: found };
   };
 
-  const register = (fullName, email) => {
-    const exist = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const register = (fullName, email, password = '123456') => {
+    const cleanEmail = email.trim().toLowerCase();
+    const exist = users.find(u => u.email.toLowerCase() === cleanEmail);
     if (exist) {
       return { status: false, message: 'Địa chỉ email này đã tồn tại trong hệ thống.' };
     }
     const newUser = {
       id: Date.now(),
       full_name: fullName.trim(),
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       avatar_url: '',
-      password: '123456', // Mật khẩu mặc định gửi qua email
-      is_first_login: 1,
+      password: password || '123456',
+      is_first_login: 0,
       created_at: new Date().toISOString()
     };
-    setUsers(prev => [...prev, newUser]);
-    return { status: true, message: 'Đăng ký thành công! Mật khẩu mặc định là 123456.' };
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    localStorage.setItem('cashflow_users', JSON.stringify(updatedUsers));
+    setCurrentUser(newUser);
+    return { status: true, message: 'Đăng ký tài khoản thành công! Đang chuyển hướng...', user: newUser };
   };
 
   const logout = () => {

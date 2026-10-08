@@ -5,8 +5,8 @@ import { formatCurrency, formatDateTime } from '../utils/formatters';
 export default function Calendar() {
   const { transactions, categories, dailyNotes, saveDailyNote, showToast } = useData();
 
-  const [currentDate, setCurrentDate] = useState(new Date('2026-05-12'));
-  const [selectedDay, setSelectedDay] = useState(12);
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState(() => new Date().getDate());
 
   // Note Modal State
   const [showNoteModal, setShowNoteModal] = useState(false);
@@ -146,6 +146,23 @@ export default function Calendar() {
           >
             <i className="bi bi-chevron-right"></i>
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const now = new Date();
+              setCurrentDate(now);
+              setSelectedDay(now.getDate());
+            }}
+            title="Về ngày hôm nay"
+            style={{
+              border: 'none', background: '#ecfdf5', color: '#059669',
+              fontWeight: 700, fontSize: '0.8rem', padding: '6px 12px',
+              borderRadius: '20px', marginLeft: '6px', cursor: 'pointer'
+            }}
+          >
+            Hôm nay
+          </button>
         </div>
       </div>
 
@@ -207,6 +224,11 @@ export default function Calendar() {
               }
 
               const isSelected = selectedDay === cell.day;
+              const isToday = (
+                new Date().getDate() === cell.day &&
+                new Date().getMonth() + 1 === currentMonth &&
+                new Date().getFullYear() === currentYear
+              );
 
               return (
                 <div
@@ -215,20 +237,30 @@ export default function Calendar() {
                   style={{
                     minHeight: '88px', padding: '6px',
                     borderRadius: '12px', background: '#ffffff',
-                    border: isSelected ? '2px solid #3b82f6' : '1px solid #e2e8f0',
-                    backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
+                    border: isSelected ? '2px solid #3b82f6' : isToday ? '2px solid #10b981' : '1px solid #e2e8f0',
+                    backgroundColor: isSelected ? '#eff6ff' : isToday ? '#f0fdf4' : '#ffffff',
                     cursor: 'pointer', position: 'relative',
                     transition: 'all 0.15s ease'
                   }}
                 >
                   {/* Day Number & Note pin icon */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{
-                      fontWeight: 800, fontSize: '0.95rem',
-                      color: isSelected ? '#2563eb' : '#1e293b'
-                    }}>
-                      {cell.day}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{
+                        fontWeight: 800, fontSize: '0.95rem',
+                        color: isSelected ? '#2563eb' : isToday ? '#10b981' : '#1e293b'
+                      }}>
+                        {cell.day}
+                      </span>
+                      {isToday && (
+                        <span style={{
+                          fontSize: '0.62rem', background: '#d1fae5', color: '#047857',
+                          padding: '1px 5px', borderRadius: '6px', fontWeight: 700
+                        }}>
+                          Nay
+                        </span>
+                      )}
+                    </div>
 
                     {cell.note && (
                       <span title={cell.note.content} style={{ color: '#f59e0b', fontSize: '0.85rem' }}>

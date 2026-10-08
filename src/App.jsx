@@ -68,7 +68,7 @@ export default function App() {
     <Routes>
       {/* Public Auth Routes */}
       <Route path="/login" element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/register" element={currentUser ? <Navigate to="/dashboard" replace /> : <Register />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/setup-password" element={<SetupPassword />} />
 

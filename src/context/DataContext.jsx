@@ -2,6 +2,10 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { useAuth } from './AuthContext';
 import { 
   INITIAL_CATEGORIES, 
+  generateRealtimeTransactions,
+  generateRealtimeBudgets,
+  generateRealtimeDailyNotes,
+  generateRealtimeAiInsights,
   INITIAL_TRANSACTIONS, 
   INITIAL_BUDGETS, 
   INITIAL_DAILY_NOTES, 
@@ -34,40 +38,72 @@ export function DataProvider({ children }) {
     return INITIAL_CATEGORIES;
   });
 
-  // 3. Transactions State
+  // 3. Transactions State (Tự động nâng cấp dữ liệu tháng 5 cũ sang thời gian thực)
   const [transactions, setTransactions] = useState(() => {
     const saved = localStorage.getItem('cashflow_transactions');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        const isStuckInMay = Array.isArray(parsed) && parsed.length > 0 && parsed.every(t => typeof t.transaction_date === 'string' && t.transaction_date.startsWith('2026-05'));
+        if (!isStuckInMay) {
+          return parsed;
+        }
+      } catch (e) {}
     }
-    return INITIAL_TRANSACTIONS;
+    const fresh = generateRealtimeTransactions();
+    localStorage.setItem('cashflow_transactions', JSON.stringify(fresh));
+    return fresh;
   });
 
-  // 4. Budgets State
+  // 4. Budgets State (Tự động nâng cấp sang tháng hiện tại)
   const [budgets, setBudgets] = useState(() => {
     const saved = localStorage.getItem('cashflow_budgets');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        const isStuckInMay = Array.isArray(parsed) && parsed.length > 0 && parsed.every(b => b.month === 5 && b.year === 2026);
+        if (!isStuckInMay) {
+          return parsed;
+        }
+      } catch (e) {}
     }
-    return INITIAL_BUDGETS;
+    const fresh = generateRealtimeBudgets();
+    localStorage.setItem('cashflow_budgets', JSON.stringify(fresh));
+    return fresh;
   });
 
   // 5. Daily Notes State
   const [dailyNotes, setDailyNotes] = useState(() => {
     const saved = localStorage.getItem('cashflow_daily_notes');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        const isStuckInMay = Array.isArray(parsed) && parsed.length > 0 && parsed.every(n => n.note_date?.startsWith('2026-05'));
+        if (!isStuckInMay) {
+          return parsed;
+        }
+      } catch (e) {}
     }
-    return INITIAL_DAILY_NOTES;
+    const fresh = generateRealtimeDailyNotes();
+    localStorage.setItem('cashflow_daily_notes', JSON.stringify(fresh));
+    return fresh;
   });
 
   // 6. AI Insights / Chat History State
   const [aiInsights, setAiInsights] = useState(() => {
     const saved = localStorage.getItem('cashflow_ai_insights');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        const isStuckInMay = Array.isArray(parsed) && parsed.length > 0 && parsed.every(a => a.created_at?.startsWith('2026-05'));
+        if (!isStuckInMay) {
+          return parsed;
+        }
+      } catch (e) {}
     }
-    return INITIAL_AI_INSIGHTS;
+    const fresh = generateRealtimeAiInsights();
+    localStorage.setItem('cashflow_ai_insights', JSON.stringify(fresh));
+    return fresh;
   });
 
   // Sync to LocalStorage
@@ -347,12 +383,36 @@ export function DataProvider({ children }) {
   };
 
   const resetToDemoData = () => {
+    const freshTransactions = generateRealtimeTransactions().map(t => ({
+      ...t,
+      user_id: userId
+    }));
+    const freshBudgets = generateRealtimeBudgets().map(b => ({
+      ...b,
+      user_id: userId
+    }));
+    const freshNotes = generateRealtimeDailyNotes().map(n => ({
+      ...n,
+      user_id: userId
+    }));
+    const freshInsights = generateRealtimeAiInsights().map(i => ({
+      ...i,
+      user_id: userId
+    }));
+
     setCategories(INITIAL_CATEGORIES);
-    setTransactions(INITIAL_TRANSACTIONS);
-    setBudgets(INITIAL_BUDGETS);
-    setDailyNotes(INITIAL_DAILY_NOTES);
-    setAiInsights(INITIAL_AI_INSIGHTS);
-    showToast('Đã khôi phục dữ liệu mẫu ban đầu thành công!');
+    setTransactions(freshTransactions);
+    setBudgets(freshBudgets);
+    setDailyNotes(freshNotes);
+    setAiInsights(freshInsights);
+
+    localStorage.setItem('cashflow_categories', JSON.stringify(INITIAL_CATEGORIES));
+    localStorage.setItem('cashflow_transactions', JSON.stringify(freshTransactions));
+    localStorage.setItem('cashflow_budgets', JSON.stringify(freshBudgets));
+    localStorage.setItem('cashflow_daily_notes', JSON.stringify(freshNotes));
+    localStorage.setItem('cashflow_ai_insights', JSON.stringify(freshInsights));
+
+    showToast('Đã nạp lại toàn bộ dữ liệu mẫu theo thời gian thực hiện tại thành công!');
   };
 
   return (

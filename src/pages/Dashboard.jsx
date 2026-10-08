@@ -30,7 +30,7 @@ export default function Dashboard() {
 
   // Filter State: 'month' | 'year' | 'week'
   const [filterType, setFilterType] = useState('month');
-  const [currentDate, setCurrentDate] = useState(new Date('2026-05-12T00:00:00'));
+  const [currentDate, setCurrentDate] = useState(() => new Date());
   const [mainTab, setMainTab] = useState('expense'); // 'expense' | 'income'
   const [subTab, setSubTab] = useState('child'); // 'child' | 'parent'
 
@@ -251,6 +251,19 @@ export default function Dashboard() {
               }}
             >
               <i className="bi bi-chevron-right" style={{ fontSize: '0.8rem' }}></i>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCurrentDate(new Date())}
+              title="Về thời gian thực hiện tại"
+              style={{
+                border: 'none', background: '#ecfdf5', color: '#059669',
+                fontWeight: 700, fontSize: '0.75rem', padding: '4px 10px',
+                borderRadius: '14px', marginLeft: '6px', cursor: 'pointer'
+              }}
+            >
+              Hôm nay
             </button>
           </div>
         </div>

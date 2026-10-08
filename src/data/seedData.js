@@ -1,29 +1,7 @@
 /**
- * Dữ liệu mẫu chuẩn được trích xuất chính xác 100% từ cashflow_db.sql
+ * Dữ liệu mẫu chuẩn được đồng bộ theo THỜI GIAN THỰC (Real-Time Current Date/Month)
+ * Tự động đồng bộ tháng và năm hiện tại của hệ thống thay vì cố định tháng 5/2026.
  */
-
-export const INITIAL_USERS = [
-  {
-    id: 1,
-    full_name: 'Nguyễn Văn Duy',
-    email: 'nvduy180706@gmail.com',
-    avatar_url: '/avatars/avatar_6a01bbbe83e2f_1778498494.jpg',
-    password: '123456',
-    is_first_login: 0,
-    created_at: '2026-04-28 21:47:09',
-    last_ai_consult_at: '2026-05-12 19:24:10'
-  },
-  {
-    id: 5,
-    full_name: 'Lê Văn Quý',
-    email: 'kdyforwork@gmail.com',
-    avatar_url: '',
-    password: '123456',
-    is_first_login: 0,
-    created_at: '2026-05-11 19:06:08',
-    last_ai_consult_at: null
-  }
-];
 
 export const INITIAL_CATEGORIES = [
   // Danh mục Cha (Chi tiêu)
@@ -60,54 +38,146 @@ export const INITIAL_CATEGORIES = [
   { id: 21, user_id: null, parent_id: null, name: 'Thu nhập khác', type: 'income' }
 ];
 
-export const INITIAL_TRANSACTIONS = [
-  { id: 3, user_id: 1, category_id: 16, amount: 45000, transaction_date: '2026-05-01 12:00:00', note: 'Ăn trưa bún bò' },
-  { id: 4, user_id: 1, category_id: 16, amount: 120000, transaction_date: '2026-05-02 19:30:00', note: 'Ăn tối với bạn bè' },
-  { id: 5, user_id: 1, category_id: 17, amount: 60000, transaction_date: '2026-05-03 08:00:00', note: 'Đổ xăng xe máy' },
-  { id: 6, user_id: 1, category_id: 15, amount: 450000, transaction_date: '2026-05-04 17:45:00', note: 'Đi siêu thị Coopmart mua đồ ăn tuần' },
-  { id: 7, user_id: 1, category_id: 16, amount: 35000, transaction_date: '2026-05-06 07:30:00', note: 'Cà phê sáng' },
-  { id: 8, user_id: 1, category_id: 5, amount: 100000, transaction_date: '2026-05-02 10:00:00', note: 'Đóng tiền điện tháng 4' },
-  { id: 10, user_id: 1, category_id: 8, amount: 850000, transaction_date: '2026-05-07 20:15:00', note: 'Mua áo sơ mi và quần jean mới' },
-  { id: 11, user_id: 1, category_id: 9, amount: 150000, transaction_date: '2026-05-08 21:00:00', note: 'Xem phim rạp CGV' },
-  { id: 12, user_id: 1, category_id: 11, amount: 250000, transaction_date: '2026-05-09 10:30:00', note: 'Mua thuốc cảm cúm' },
-  { id: 13, user_id: 1, category_id: 13, amount: 2000000, transaction_date: '2026-05-02 08:00:00', note: 'Chuyển tiền vào quỹ chứng khoán' },
-  { id: 14, user_id: 1, category_id: 14, amount: 500000, transaction_date: '2026-05-08 15:00:00', note: 'Mua khóa học lập trình Web' },
-  { id: 15, user_id: 1, category_id: 16, amount: 30000, transaction_date: '2026-05-09 22:50:00', note: 'Ăn trưa căn tin' },
-  { id: 16, user_id: 1, category_id: 17, amount: 30000, transaction_date: '2026-05-10 22:39:00', note: 'Đổ xăng' },
-  { id: 26, user_id: 1, category_id: 17, amount: 6000, transaction_date: '2026-05-11 21:35:00', note: 'Bus' },
-  { id: 27, user_id: 1, category_id: 16, amount: 15000, transaction_date: '2026-05-11 21:35:00', note: 'Ăn tối cơm chay' },
-  { id: 28, user_id: 1, category_id: 8, amount: 50000, transaction_date: '2026-05-11 21:36:00', note: 'Chụp ảnh thẻ' },
-  { id: 30, user_id: 1, category_id: 16, amount: 32000, transaction_date: '2026-05-01 08:47:00', note: 'Ăn sáng 2 ổ bánh mì' },
-  { id: 31, user_id: 1, category_id: 16, amount: 12000, transaction_date: '2026-05-01 20:49:00', note: 'Mua nước mía' },
-  { id: 32, user_id: 1, category_id: 16, amount: 18000, transaction_date: '2026-05-11 22:02:00', note: 'Ăn vặt đêm' },
-  { id: 33, user_id: 1, category_id: 16, amount: 10000, transaction_date: '2026-05-12 07:02:00', note: 'Ăn sáng' },
-  { id: 34, user_id: 1, category_id: 18, amount: 4172490, transaction_date: '2026-05-06 07:37:00', note: 'Lương tháng 4 SSMC' },
-  { id: 35, user_id: 1, category_id: 17, amount: 30000, transaction_date: '2026-05-12 07:53:00', note: 'Đổ xăng' },
-  { id: 36, user_id: 1, category_id: 8, amount: 56000, transaction_date: '2026-05-12 08:37:00', note: 'Mua áo' }
-];
+export function generateRealtimeUsers() {
+  return [
+    {
+      id: 1,
+      full_name: 'Nguyễn Văn Duy',
+      email: 'nvduy180706@gmail.com',
+      avatar_url: '/avatars/avatar_6a01bbbe83e2f_1778498494.jpg',
+      password: '123456',
+      is_first_login: 0,
+      created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      last_ai_consult_at: null
+    },
+    {
+      id: 5,
+      full_name: 'Lê Văn Quý',
+      email: 'kdyforwork@gmail.com',
+      avatar_url: '',
+      password: '123456',
+      is_first_login: 0,
+      created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      last_ai_consult_at: null
+    }
+  ];
+}
 
-export const INITIAL_BUDGETS = [
-  { id: 2, user_id: 1, category_id: 16, amount_limit: 3000000, month: 5, year: 2026 },
-  { id: 3, user_id: 1, category_id: 15, amount_limit: 2000000, month: 5, year: 2026 },
-  { id: 4, user_id: 1, category_id: 17, amount_limit: 1000000, month: 5, year: 2026 },
-  { id: 5, user_id: 1, category_id: 5,  amount_limit: 1500000, month: 5, year: 2026 },
-  { id: 6, user_id: 1, category_id: 6,  amount_limit: 3000000, month: 5, year: 2026 },
-  { id: 7, user_id: 1, category_id: 8,  amount_limit: 2000000, month: 5, year: 2026 },
-  { id: 8, user_id: 1, category_id: 9,  amount_limit: 1000000, month: 5, year: 2026 },
-  { id: 9, user_id: 1, category_id: 13, amount_limit: 5000000, month: 5, year: 2026 }
-];
+export function generateRealtimeTransactions() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // 1-12
+  const currentDay = now.getDate(); // Ngày hiện tại trong tháng
 
-export const INITIAL_DAILY_NOTES = [
-  { id: 11, user_id: 1, note_date: '2026-05-06', content: 'Nhận lương', pin_type: 'none' }
-];
+  const rawList = [
+    { id: 3, user_id: 1, category_id: 16, amount: 45000, origDay: 1, time: '12:00:00', note: 'Ăn trưa bún bò' },
+    { id: 4, user_id: 1, category_id: 16, amount: 120000, origDay: 2, time: '19:30:00', note: 'Ăn tối với bạn bè' },
+    { id: 5, user_id: 1, category_id: 17, amount: 60000, origDay: 3, time: '08:00:00', note: 'Đổ xăng xe máy' },
+    { id: 6, user_id: 1, category_id: 15, amount: 450000, origDay: 4, time: '17:45:00', note: 'Đi siêu thị Coopmart mua đồ ăn tuần' },
+    { id: 7, user_id: 1, category_id: 16, amount: 35000, origDay: 6, time: '07:30:00', note: 'Cà phê sáng' },
+    { id: 8, user_id: 1, category_id: 5, amount: 100000, origDay: 2, time: '10:00:00', note: 'Đóng tiền điện tháng trước' },
+    { id: 10, user_id: 1, category_id: 8, amount: 850000, origDay: 7, time: '20:15:00', note: 'Mua áo sơ mi và quần jean mới' },
+    { id: 11, user_id: 1, category_id: 9, amount: 150000, origDay: 8, time: '21:00:00', note: 'Xem phim rạp CGV' },
+    { id: 12, user_id: 1, category_id: 11, amount: 250000, origDay: 9, time: '10:30:00', note: 'Mua thuốc cảm cúm' },
+    { id: 13, user_id: 1, category_id: 13, amount: 2000000, origDay: 2, time: '08:00:00', note: 'Chuyển tiền vào quỹ chứng khoán' },
+    { id: 14, user_id: 1, category_id: 14, amount: 500000, origDay: 8, time: '15:00:00', note: 'Mua khóa học lập trình Web' },
+    { id: 15, user_id: 1, category_id: 16, amount: 30000, origDay: 9, time: '12:50:00', note: 'Ăn trưa căn tin' },
+    { id: 16, user_id: 1, category_id: 17, amount: 30000, origDay: 10, time: '14:39:00', note: 'Đổ xăng' },
+    { id: 26, user_id: 1, category_id: 17, amount: 6000, origDay: 11, time: '21:35:00', note: 'Bus' },
+    { id: 27, user_id: 1, category_id: 16, amount: 15000, origDay: 11, time: '21:35:00', note: 'Ăn tối cơm chay' },
+    { id: 28, user_id: 1, category_id: 8, amount: 50000, origDay: 11, time: '21:36:00', note: 'Chụp ảnh thẻ' },
+    { id: 30, user_id: 1, category_id: 16, amount: 32000, origDay: 1, time: '08:47:00', note: 'Ăn sáng 2 ổ bánh mì' },
+    { id: 31, user_id: 1, category_id: 16, amount: 12000, origDay: 1, time: '20:49:00', note: 'Mua nước mía' },
+    { id: 32, user_id: 1, category_id: 16, amount: 18000, origDay: 11, time: '22:02:00', note: 'Ăn vặt đêm' },
+    { id: 33, user_id: 1, category_id: 16, amount: 10000, origDay: 12, time: '07:02:00', note: 'Ăn sáng' },
+    { id: 34, user_id: 1, category_id: 18, amount: 4172490, origDay: 6, time: '07:37:00', note: 'Lương tháng SSMC' },
+    { id: 35, user_id: 1, category_id: 17, amount: 30000, origDay: 12, time: '07:53:00', note: 'Đổ xăng' },
+    { id: 36, user_id: 1, category_id: 8, amount: 56000, origDay: 12, time: '08:37:00', note: 'Mua áo' }
+  ];
 
-export const INITIAL_AI_INSIGHTS = [
-  {
-    id: 67,
+  const maxOrigDay = 12;
+  return rawList.map(item => {
+    let dayNum = item.origDay;
+    if (currentDay < maxOrigDay) {
+      dayNum = Math.max(1, Math.min(currentDay, Math.round((item.origDay / maxOrigDay) * currentDay)));
+    }
+    const dayStr = String(dayNum).padStart(2, '0');
+    const monthStr = String(month).padStart(2, '0');
+    return {
+      id: item.id,
+      user_id: item.user_id,
+      category_id: item.category_id,
+      amount: item.amount,
+      transaction_date: `${year}-${monthStr}-${dayStr} ${item.time}`,
+      note: item.note
+    };
+  });
+}
+
+export function generateRealtimeBudgets() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // 1-12
+  
+  let prevMonth = month - 1;
+  let prevYear = year;
+  if (prevMonth < 1) {
+    prevMonth = 12;
+    prevYear -= 1;
+  }
+
+  const baseLimits = [
+    { id: 2, category_id: 16, amount_limit: 3000000 },
+    { id: 3, category_id: 15, amount_limit: 2000000 },
+    { id: 4, category_id: 17, amount_limit: 1000000 },
+    { id: 5, category_id: 5,  amount_limit: 1500000 },
+    { id: 6, category_id: 6,  amount_limit: 3000000 },
+    { id: 7, category_id: 8,  amount_limit: 2000000 },
+    { id: 8, category_id: 9,  amount_limit: 1000000 },
+    { id: 9, category_id: 13, amount_limit: 5000000 }
+  ];
+
+  const currentBudgets = baseLimits.map(b => ({
+    id: b.id,
     user_id: 1,
-    type: 'warning',
-    created_at: '2026-05-13 00:23:59',
-    content: `<b>TỔNG QUÁT:</b><br>
+    category_id: b.category_id,
+    amount_limit: b.amount_limit,
+    month: month,
+    year: year
+  }));
+
+  const prevBudgets = baseLimits.map((b, idx) => ({
+    id: 100 + idx,
+    user_id: 1,
+    category_id: b.category_id,
+    amount_limit: b.amount_limit,
+    month: prevMonth,
+    year: prevYear
+  }));
+
+  return [...currentBudgets, ...prevBudgets];
+}
+
+export function generateRealtimeDailyNotes() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(Math.min(now.getDate(), 6)).padStart(2, '0');
+  return [
+    { id: 11, user_id: 1, note_date: `${year}-${month}-${day}`, content: 'Nhận lương tháng', pin_type: 'none' }
+  ];
+}
+
+export function generateRealtimeAiInsights() {
+  const now = new Date();
+  const timeStr = now.toISOString().slice(0, 19).replace('T', ' ');
+  return [
+    {
+      id: 67,
+      user_id: 1,
+      type: 'warning',
+      created_at: timeStr,
+      content: `<b>TỔNG QUÁT:</b><br>
 Tình hình tài chính của bạn đang ở mức <b>BÁO ĐỘNG ĐỎ</b>. Bạn đang chi tiêu vượt thu với tổng chi (4.849.000 đ) cao hơn tổng thu (4.172.490 đ), dẫn đến thâm hụt 676.510 đ.<br><br>
 <b>CỤ THỂ:</b><br>
 <ul>
@@ -117,13 +187,13 @@ Tình hình tài chính của bạn đang ở mức <b>BÁO ĐỘNG ĐỎ</b>. B
 </ul><br>
 <b>KẾT LUẬN:</b><br>
 Bạn cần thực hiện ngay 3 hành động: <b>(1) Dừng mua sắm không thiết yếu</b>, <b>(2) Điều chỉnh lại tỷ lệ đầu tư</b>, <b>(3) Thiết lập hạn mức chi tiêu hàng ngày</b>.`
-  },
-  {
-    id: 68,
-    user_id: 1,
-    type: 'summary',
-    created_at: '2026-05-13 00:24:10',
-    content: `<b>TỔNG QUÁT:</b><br>
+    },
+    {
+      id: 68,
+      user_id: 1,
+      type: 'summary',
+      created_at: timeStr,
+      content: `<b>TỔNG QUÁT:</b><br>
 Tài chính của bạn đang ở trạng thái <b>thâm hụt nhẹ</b> trong tháng.<br><br>
 <b>CỤ THỂ:</b><br>
 <ul>
@@ -133,5 +203,13 @@ Tài chính của bạn đang ở trạng thái <b>thâm hụt nhẹ</b> trong t
 </ul><br>
 <b>KẾT LUẬN:</b><br>
 Bạn đang tích lũy đầu tư rất tích cực nhưng cần cân đối dòng tiền tiền mặt hàng ngày để tránh thâm hụt ngân sách.`
-  }
-];
+    }
+  ];
+}
+
+// Initial exported constants dynamically evaluated
+export const INITIAL_USERS = generateRealtimeUsers();
+export const INITIAL_TRANSACTIONS = generateRealtimeTransactions();
+export const INITIAL_BUDGETS = generateRealtimeBudgets();
+export const INITIAL_DAILY_NOTES = generateRealtimeDailyNotes();
+export const INITIAL_AI_INSIGHTS = generateRealtimeAiInsights();
