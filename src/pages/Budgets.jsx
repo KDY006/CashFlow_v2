@@ -66,6 +66,24 @@ export default function Budgets() {
     setShowAddCatModal(false);
   };
 
+  const openQuickAddChild = (parentId) => {
+    setCatType('expense');
+    setCatParentId(String(parentId));
+    setCatName('');
+    setShowAddCatModal(true);
+  };
+
+  const openQuickAddIncome = () => {
+    setCatType('income');
+    setCatParentId('');
+    setCatName('');
+    setShowAddCatModal(true);
+  };
+
+  // Split Category Tree into Expense Parents vs Income Sources
+  const expenseParents = categoryTree.filter(c => c.type === 'expense');
+  const incomeItems = categories.filter(c => c.type === 'income');
+
   // Open Budget Modal for adding or editing
   const handleOpenBudgetModal = (existing = null) => {
     if (existing) {
@@ -118,7 +136,7 @@ export default function Budgets() {
 
       {/* Main Tabs */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-        <div className="pill-tab-group" style={{ maxWidth: '400px', width: '100%' }}>
+        <div className="pill-tab-group" style={{ maxWidth: '440px', width: '100%' }}>
           <button
             type="button"
             className={`pill-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
@@ -145,71 +163,189 @@ export default function Budgets() {
             <button 
               type="button" 
               className="btn-add-global"
-              style={{ background: '#3b82f6', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}
-              onClick={() => setShowAddCatModal(true)}
+              style={{ background: 'var(--blue-gradient)', boxShadow: 'var(--blue-glow)' }}
+              onClick={() => {
+                setCatType('expense');
+                setCatParentId('');
+                setCatName('');
+                setShowAddCatModal(true);
+              }}
             >
               <i className="bi bi-plus-lg"></i>
               <span>Tạo danh mục mới</span>
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-            {categoryTree.map(parent => (
-              <div key={parent.id} className="card-box">
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', marginBottom: '12px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+            {/* Cột Chi tiêu (Expense Groups) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-folder2-open"></i>
+                <span>Nhóm Danh Mục Chi Tiêu</span>
+              </h3>
+
+              {expenseParents.map(parent => (
+                <div key={parent.id} className="card-box" style={{ padding: '20px' }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', marginBottom: '14px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '8px',
+                        background: '#fee2e2', color: '#dc2626',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '1rem', fontWeight: 700
+                      }}>
+                        <i className="bi bi-folder-fill"></i>
+                      </div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                        {parent.name}
+                      </h4>
+                    </div>
+
                     <span style={{
-                      width: '12px', height: '12px', borderRadius: '50%',
-                      backgroundColor: parent.type === 'income' ? '#10b981' : '#ef4444'
-                    }}></span>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
-                      {parent.name}
-                    </h3>
+                      fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: '12px',
+                      backgroundColor: '#fee2e2', color: '#dc2626'
+                    }}>
+                      {parent.children?.length || 0} mục con
+                    </span>
                   </div>
 
-                  <span style={{
-                    fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px',
-                    backgroundColor: parent.type === 'income' ? '#ecfdf5' : '#fef2f2',
-                    color: parent.type === 'income' ? '#059669' : '#dc2626'
-                  }}>
-                    {parent.type === 'income' ? 'Thu nhập' : 'Nhóm Chi'}
-                  </span>
-                </div>
-
-                {/* Children */}
-                {parent.children && parent.children.length > 0 ? (
+                  {/* Children Items */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {parent.children.map(child => (
+                    {parent.children?.map(child => (
                       <div key={child.id} style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '10px 14px', borderRadius: '10px',
-                        background: '#f8fafc', border: '1px solid #f1f5f9'
+                        padding: '10px 14px', borderRadius: '12px',
+                        background: '#f8fafc', border: '1px solid #f1f5f9',
+                        transition: 'background 0.15s ease'
                       }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{child.name}</span>
+                        <span style={{ fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="bi bi-arrow-return-right" style={{ color: '#94a3b8', fontSize: '0.8rem' }}></i>
+                          <span>{child.name}</span>
+                        </span>
                         <button
                           type="button"
                           onClick={() => deleteCategory(child.id)}
                           style={{
                             border: 'none', background: 'transparent',
-                            color: '#94a3b8', cursor: 'pointer', padding: '4px'
+                            color: '#ef4444', opacity: 0.6, cursor: 'pointer', padding: '4px',
+                            transition: 'opacity 0.15s'
                           }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
                           title="Xóa danh mục"
                         >
                           <i className="bi bi-trash"></i>
                         </button>
                       </div>
                     ))}
+
+                    {/* Quick Add Child Button */}
+                    <button
+                      type="button"
+                      onClick={() => openQuickAddChild(parent.id)}
+                      style={{
+                        border: '2px dashed #fca5a5', background: '#fff5f5',
+                        color: '#dc2626', borderRadius: '12px', padding: '10px',
+                        fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                        marginTop: '6px', transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#fee2e2'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = '#fff5f5'}
+                    >
+                      <i className="bi bi-plus-circle-fill"></i>
+                      <span>Thêm mục con cho {parent.name}</span>
+                    </button>
                   </div>
-                ) : (
-                  <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontStyle: 'italic', padding: '10px 0' }}>
-                    {parent.type === 'income' ? 'Danh mục thu nhập trực tiếp' : 'Chưa có danh mục con'}
+                </div>
+              ))}
+            </div>
+
+            {/* Cột Thu nhập (Income Sources) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-wallet2"></i>
+                <span>Nguồn Thu Nhập</span>
+              </h3>
+
+              <div className="card-box" style={{ padding: '20px' }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', marginBottom: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '32px', height: '32px', borderRadius: '8px',
+                      background: '#d1fae5', color: '#059669',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1rem', fontWeight: 700
+                    }}>
+                      <i className="bi bi-cash-stack"></i>
+                    </div>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                      Các nguồn thu
+                    </h4>
                   </div>
-                )}
+
+                  <span style={{
+                    fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: '12px',
+                    backgroundColor: '#d1fae5', color: '#059669'
+                  }}>
+                    {incomeItems.length} nguồn thu
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {incomeItems.map(inc => (
+                    <div key={inc.id} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 14px', borderRadius: '12px',
+                      background: '#f8fafc', border: '1px solid #f1f5f9'
+                    }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <i className="bi bi-check-circle-fill" style={{ color: '#10b981', fontSize: '0.85rem' }}></i>
+                        <span>{inc.name}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => deleteCategory(inc.id)}
+                        style={{
+                          border: 'none', background: 'transparent',
+                          color: '#ef4444', opacity: 0.6, cursor: 'pointer', padding: '4px',
+                          transition: 'opacity 0.15s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
+                        title="Xóa danh mục"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Quick Add Income Button */}
+                  <button
+                    type="button"
+                    onClick={openQuickAddIncome}
+                    style={{
+                      border: '2px dashed #6ee7b7', background: '#f0fdf4',
+                      color: '#059669', borderRadius: '12px', padding: '10px',
+                      fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      marginTop: '6px', transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#dcfce7'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#f0fdf4'}
+                  >
+                    <i className="bi bi-plus-circle-fill"></i>
+                    <span>Thêm nguồn thu mới</span>
+                  </button>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       )}

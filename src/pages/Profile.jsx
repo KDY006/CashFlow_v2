@@ -12,6 +12,8 @@ export default function Profile() {
 
   // Profile info state
   const [fullName, setFullName] = useState(currentUser?.full_name || '');
+  const [dob, setDob] = useState(currentUser?.dob || '');
+  const [gender, setGender] = useState(currentUser?.gender || 'Nam');
   const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatar_url || '');
 
   // Password state
@@ -43,7 +45,7 @@ export default function Profile() {
       showToast('Vui lòng nhập họ và tên!', false);
       return;
     }
-    const res = updateProfile({ fullName, avatarUrl: avatarPreview });
+    const res = updateProfile({ fullName, dob, gender, avatarUrl: avatarPreview });
     showToast(res.message, res.status);
   };
 
@@ -142,6 +144,30 @@ export default function Profile() {
                 {currentUser?.created_at?.slice(0, 10) || '28/04/2026'}
               </span>
             </div>
+
+            {currentUser?.dob && (
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '10px 14px', borderRadius: '12px', background: '#f8fafc'
+              }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b' }}>NGÀY SINH</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e293b' }}>
+                  {currentUser.dob}
+                </span>
+              </div>
+            )}
+
+            {currentUser?.gender && (
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '10px 14px', borderRadius: '12px', background: '#f8fafc'
+              }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b' }}>GIỚI TÍNH</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e293b' }}>
+                  {currentUser.gender}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -213,7 +239,7 @@ export default function Profile() {
                 </span>
               </div>
 
-              <div className="form-group-field" style={{ marginBottom: '28px' }}>
+              <div className="form-group-field" style={{ marginBottom: '14px' }}>
                 <label className="form-label-custom">HỌ VÀ TÊN</label>
                 <input
                   type="text"
@@ -222,6 +248,32 @@ export default function Profile() {
                   onChange={(e) => setFullName(e.target.value)}
                   required
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '28px' }}>
+                <div className="form-group-field" style={{ margin: 0 }}>
+                  <label className="form-label-custom">NGÀY SINH</label>
+                  <input
+                    type="date"
+                    className="input-custom"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group-field" style={{ margin: 0 }}>
+                  <label className="form-label-custom">GIỚI TÍNH</label>
+                  <select
+                    className="input-custom"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+                </div>
               </div>
 
               <button type="submit" className="btn-action-primary">

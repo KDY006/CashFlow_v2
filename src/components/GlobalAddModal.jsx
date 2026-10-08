@@ -259,13 +259,13 @@ export default function GlobalAddModal({ isOpen, onClose }) {
                 </p>
               </div>
 
-              <div className="form-group-field" style={{ marginBottom: '20px' }}>
+              <div className="form-group-field" style={{ marginBottom: '12px' }}>
                 <textarea
                   className="input-custom"
                   rows="3"
                   value={aiText}
                   onChange={(e) => setAiText(e.target.value)}
-                  placeholder="Ví dụ: Đổ xăng xe máy 60k..."
+                  placeholder="Ví dụ: Đổ xăng xe máy 60k, ăn trưa 45k..."
                   style={{
                     borderRadius: '16px',
                     borderColor: '#93c5fd',
@@ -274,6 +274,24 @@ export default function GlobalAddModal({ isOpen, onClose }) {
                   }}
                   autoFocus
                 ></textarea>
+              </div>
+
+              {/* Quick Suggestion Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '18px' }}>
+                {['Đổ xăng 60k', 'Ăn trưa bún bò 45k', 'Tiền điện 650k', 'Mua áo sơ mi 350k', 'Nhận lương freelance 5 củ'].map(chip => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => setAiText(chip)}
+                    style={{
+                      border: '1px solid #bfdbfe', background: '#eff6ff', color: '#1d4ed8',
+                      borderRadius: '14px', padding: '4px 10px', fontSize: '0.75rem',
+                      fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s'
+                    }}
+                  >
+                    + {chip}
+                  </button>
+                ))}
               </div>
 
               <button 

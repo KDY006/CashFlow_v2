@@ -38,12 +38,23 @@ export const INITIAL_CATEGORIES = [
   { id: 21, user_id: null, parent_id: null, name: 'Thu nhập khác', type: 'income' }
 ];
 
+export function generateRandomTempPassword(length = 6) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 export function generateRealtimeUsers() {
   return [
     {
       id: 1,
       full_name: 'Nguyễn Văn Duy',
       email: 'nvduy180706@gmail.com',
+      dob: '2004-07-18',
+      gender: 'Nam',
       avatar_url: '/avatars/avatar_6a01bbbe83e2f_1778498494.jpg',
       password: '123456',
       is_first_login: 0,
@@ -54,6 +65,8 @@ export function generateRealtimeUsers() {
       id: 5,
       full_name: 'Lê Văn Quý',
       email: 'kdyforwork@gmail.com',
+      dob: '2004-05-11',
+      gender: 'Nam',
       avatar_url: '',
       password: '123456',
       is_first_login: 0,

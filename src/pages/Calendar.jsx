@@ -263,8 +263,12 @@ export default function Calendar() {
                     </div>
 
                     {cell.note && (
-                      <span title={cell.note.content} style={{ color: '#f59e0b', fontSize: '0.85rem' }}>
-                        📌
+                      <span title={cell.note.content} style={{ fontSize: '0.88rem' }}>
+                        {cell.note.pin_type !== 'none' ? (
+                          <i className="bi bi-pin-angle-fill" style={{ color: '#dc2626' }}></i>
+                        ) : (
+                          <i className="bi bi-sticky-fill" style={{ color: '#f59e0b' }}></i>
+                        )}
                       </span>
                     )}
                   </div>

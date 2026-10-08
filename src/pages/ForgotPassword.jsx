@@ -2,22 +2,24 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import EmailModal from '../components/EmailModal';
 
 export default function ForgotPassword() {
-  const { users } = useAuth();
+  const { forgotPassword } = useAuth();
   const { showToast } = useData();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
-  const [isSent, setIsSent] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [sentEmailData, setSentEmailData] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const found = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (found) {
-      setIsSent(true);
-      showToast(`Đã gửi liên kết khôi phục tới ${email}!`);
-    } else {
-      showToast('Không tìm thấy tài khoản với email này!', false);
+    const res = forgotPassword(email);
+    showToast(res.message, res.status);
+    if (res.status) {
+      setSentEmailData(res.emailMessage);
+      setShowEmailModal(true);
     }
   };
 
@@ -47,47 +49,35 @@ export default function ForgotPassword() {
           Quên mật khẩu?
         </h2>
         <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '24px' }}>
-          Nhập địa chỉ email đăng ký để nhận liên kết đặt lại mật khẩu mới.
+          Nhập địa chỉ email đăng ký để nhận mật khẩu tạm thời ngẫu nhiên qua email.
         </p>
 
-        {isSent ? (
-          <div style={{
-            background: '#ecfdf5', border: '1px solid #a7f3d0',
-            borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '24px'
-          }}>
-            <i className="bi bi-check-circle-fill" style={{ fontSize: '2.5rem', color: '#10b981', display: 'block', marginBottom: '8px' }}></i>
-            <h4 style={{ fontWeight: 800, color: '#065f46', marginBottom: '4px' }}>Kiểm tra hòm thư của bạn</h4>
-            <p style={{ fontSize: '0.82rem', color: '#047857', marginBottom: '16px' }}>
-              Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu tới <b>{email}</b>.
-            </p>
-            <button
-              type="button"
-              className="btn-action-primary"
-              onClick={() => navigate('/login')}
-            >
-              Quay về Đăng nhập
-            </button>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group-field" style={{ marginBottom: '20px' }}>
+            <label className="form-label-custom">ĐỊA CHỈ EMAIL</label>
+            <input
+              type="email"
+              className="input-custom"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              required
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="form-group-field" style={{ marginBottom: '24px' }}>
-              <label className="form-label-custom">ĐỊA CHỈ EMAIL</label>
-              <input
-                type="email"
-                className="input-custom"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                required
-              />
-            </div>
 
-            <button type="submit" className="btn-action-primary" style={{ marginBottom: '20px' }}>
-              <span>Gửi liên kết khôi phục</span>
-              <i className="bi bi-send"></i>
-            </button>
-          </form>
-        )}
+          <div style={{
+            background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px',
+            padding: '12px', marginBottom: '24px', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5
+          }}>
+            <i className="bi bi-info-circle" style={{ marginRight: '6px', color: '#3b82f6' }}></i>
+            Hệ thống sẽ cấp lại một mật khẩu tạm thời ngẫu nhiên và gửi tới hòm thư của bạn. Bạn sẽ đăng nhập và thiết lập lại mật khẩu mới.
+          </div>
+
+          <button type="submit" className="btn-action-primary" style={{ marginBottom: '20px' }}>
+            <span>Gửi mật khẩu qua Email</span>
+            <i className="bi bi-send"></i>
+          </button>
+        </form>
 
         <div style={{ textAlign: 'center', fontSize: '0.88rem', color: '#64748b' }}>
           Nhớ lại mật khẩu?{' '}
@@ -96,6 +86,12 @@ export default function ForgotPassword() {
           </NavLink>
         </div>
       </div>
+
+      <EmailModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        emailData={sentEmailData}
+      />
     </div>
   );
 }

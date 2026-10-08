@@ -319,13 +319,33 @@ export default function Dashboard() {
           <i className="bi bi-bar-chart-line-fill" style={{ color: '#3b82f6' }}></i>
           <span>Biểu đồ so sánh Thu & Chi theo tháng (Năm {currentDate.getFullYear()})</span>
         </h3>
-        <div style={{ height: '240px' }}>
+        <div style={{ height: '260px' }}>
           <Bar 
             data={barChartData} 
             options={{
               responsive: true,
               maintainAspectRatio: false,
-              plugins: { legend: { position: 'top' } }
+              plugins: {
+                legend: { position: 'top', labels: { font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600' } } },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: (value) => {
+                      if (value === 0) return '0đ';
+                      if (value >= 1000000) return (value / 1000000).toFixed(1) + 'Tr';
+                      if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                      return value + 'đ';
+                    }
+                  }
+                }
+              }
             }} 
           />
         </div>
@@ -347,7 +367,15 @@ export default function Dashboard() {
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
-                  plugins: { legend: { display: false } }
+                  cutout: '60%',
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.raw)} (${categoryAllocation.items[ctx.dataIndex]?.percentage}%)`
+                      }
+                    }
+                  }
                 }} 
               />
             ) : (

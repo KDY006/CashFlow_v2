@@ -132,7 +132,7 @@ function parseTransactionLocally(text, categories) {
 /**
  * Cố vấn tài chính AI dựa trên giao dịch thực tế
  */
-export async function getFinancialAdvice({ type, transactions = [], categories = [] }) {
+export async function getFinancialAdvice({ type, customQuery, transactions = [], categories = [] }) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   const totalIn = transactions
@@ -156,6 +156,10 @@ export async function getFinancialAdvice({ type, transactions = [], categories =
     summary: 'Hãy TÓM TẮT siêu ngắn gọn tình hình thu chi và thói quen tiêu dùng trong tháng.'
   };
 
+  const taskPrompt = customQuery 
+    ? `Người dùng đặt câu hỏi trực tiếp: "${customQuery}". Dựa vào tình hình dòng tiền và chi tiêu thực tế của người dùng, hãy đưa ra câu trả lời phân tích chuyên sâu, khách quan và hữu ích.`
+    : (cmdMap[type] || cmdMap.summary);
+
   if (apiKey) {
     try {
       const prompt = `
@@ -163,7 +167,7 @@ export async function getFinancialAdvice({ type, transactions = [], categories =
       Tổng thu: ${totalIn.toLocaleString('vi-VN')} đ | Tổng chi: ${totalOut.toLocaleString('vi-VN')} đ
       Chi tiết các giao dịch gần đây: ${JSON.stringify(transactions.slice(0, 20))}
 
-      Nhiệm vụ: ${cmdMap[type] || cmdMap.summary}
+      Nhiệm vụ: ${taskPrompt}
       Yêu cầu trình bày:
       1. Xưng hô "Tôi" (Trợ lý AI) và "Bạn" (Người dùng).
       2. Câu trả lời phải NGẮN GỌN, súc tích và bắt buộc chia làm 3 phần rõ rệt:
@@ -193,10 +197,10 @@ export async function getFinancialAdvice({ type, transactions = [], categories =
   }
 
   // MÁY PHÂN TÍCH CHUYÊN GIA TỰ ĐỘNG (Local Expert Engine)
-  return generateExpertLocalAdvice(type, totalIn, totalOut, transactions, categories);
+  return generateExpertLocalAdvice(type, totalIn, totalOut, transactions, categories, customQuery);
 }
 
-function generateExpertLocalAdvice(type, totalIn, totalOut, transactions, categories) {
+function generateExpertLocalAdvice(type, totalIn, totalOut, transactions, categories, customQuery = '') {
   const balance = totalIn - totalOut;
   const inStr = totalIn.toLocaleString('vi-VN') + ' đ';
   const outStr = totalOut.toLocaleString('vi-VN') + ' đ';
@@ -218,6 +222,21 @@ function generateExpertLocalAdvice(type, totalIn, totalOut, transactions, catego
   const topCatText = topCats.length > 0 
     ? topCats.map(([name, amt]) => `<li><b>${name}:</b> ${amt.toLocaleString('vi-VN')} đ</li>`).join('')
     : '<li>Chưa ghi nhận chi tiêu nổi bật.</li>';
+
+  if (customQuery) {
+    return `<b>TỔNG QUÁT:</b><br>
+Giải đáp thắc mắc: "<i>${customQuery}</i>". Dựa vào số dư hiện có (${balance >= 0 ? '+' : '-'}${balStr}) và dòng tiền thu ${inStr} / chi ${outStr}, Tôi xin đưa ra đánh giá khách quan.<br><br>
+<b>CỤ THỂ:</b><br>
+<ul>
+<li>Tình trạng dòng tiền: ${balance >= 0 ? 'Thặng dư an toàn' : 'Đang thâm hụt ngân sách'}.</li>
+${topCatText}
+<li>Mức chi tiêu trung bình đang chiếm ${totalIn > 0 ? Math.round((totalOut/totalIn)*100) : 0}% tổng thu nhập.</li>
+</ul><br>
+<b>KẾT LUẬN:</b><br>
+${balance > 1000000 
+  ? 'Bạn có đủ đệm tài chính để cân nhắc chi tiêu này, tuy nhiên hãy duy trì quỹ khẩn cấp tối thiểu 3 tháng chi phí sinh hoạt trước khi quyết định.' 
+  : 'Thời điểm này bạn nên ưu tiên thắt chặt ngân sách và hoãn các khoản chi lớn không thực sự cần thiết.'}`;
+  }
 
   if (type === 'warning') {
     if (balance < 0) {

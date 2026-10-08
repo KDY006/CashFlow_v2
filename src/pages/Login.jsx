@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import EmailModal from '../components/EmailModal';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, lastSentEmail } = useAuth();
   const { showToast } = useData();
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,6 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState(() => location.state?.password || '123456');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -235,6 +237,42 @@ export default function Login() {
             </button>
           </form>
 
+          {/* Email Notification Alert if an email was recently sent */}
+          {lastSentEmail && (
+            <div style={{
+              background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '12px',
+              padding: '10px 14px', marginBottom: '16px', display: 'flex',
+              alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#065f46' }}>
+                <i className="bi bi-envelope-check-fill" style={{ color: '#10b981', fontSize: '1rem' }}></i>
+                <span>Thư gửi mật khẩu tới: <b>{lastSentEmail.to}</b></span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmailModal(true)}
+                style={{
+                  background: '#10b981', color: '#ffffff', border: 'none',
+                  borderRadius: '6px', padding: '4px 10px', fontWeight: 700,
+                  fontSize: '0.75rem', cursor: 'pointer'
+                }}
+              >
+                Mở hòm thư
+              </button>
+            </div>
+          )}
+
+          {location.state?.fromEmail && (
+            <div style={{
+              background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px',
+              padding: '10px 14px', marginBottom: '16px', fontSize: '0.82rem',
+              color: '#1d4ed8', lineHeight: 1.4
+            }}>
+              <i className="bi bi-info-circle-fill" style={{ marginRight: '6px' }}></i>
+              Đã điền sẵn mật khẩu tạm thời từ email. Nhấn <b>Đăng nhập ngay</b> để sang bước thiết lập mật khẩu mới.
+            </div>
+          )}
+
           <div style={{ textAlign: 'center', fontSize: '0.88rem', color: '#64748b' }}>
             Chưa có tài khoản?{' '}
             <NavLink to="/register" style={{ fontWeight: 700, color: '#10b981' }}>
@@ -243,6 +281,12 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      <EmailModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        emailData={lastSentEmail}
+      />
     </div>
   );
 }

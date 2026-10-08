@@ -37,8 +37,15 @@ export default function Navbar({ onOpenAddModal }) {
       <div className="nav-container">
         {/* Brand Logo */}
         <NavLink to="/dashboard" className="brand-link">
-          <img src="/logo.png" alt="CashFlow Logo" onError={(e) => { e.target.style.display = 'none'; }} />
-          <span>CashFlow</span>
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '10px',
+            background: 'var(--primary-gradient)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#ffffff', fontSize: '1.2rem', boxShadow: 'var(--primary-glow)'
+          }}>
+            <i className="bi bi-wallet2"></i>
+          </div>
+          <span className="brand-title-accent">CashFlow</span>
         </NavLink>
 
         {/* Desktop Links */}
@@ -96,6 +103,20 @@ export default function Navbar({ onOpenAddModal }) {
                   >
                     <i className="bi bi-person-circle" style={{ color: '#3b82f6' }}></i>
                     <span>Hồ sơ cá nhân</span>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    className="dropdown-link"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      const targetEmail = currentUser?.email === 'nvduy180706@gmail.com' ? 'kdyforwork@gmail.com' : 'nvduy180706@gmail.com';
+                      switchDemoAccount(targetEmail);
+                    }}
+                    title="Chuyển đổi giữa 2 tài khoản demo của đồ án"
+                  >
+                    <i className="bi bi-arrow-left-right" style={{ color: '#8b5cf6' }}></i>
+                    <span>Đổi tài khoản demo</span>
                   </button>
 
                   <button 

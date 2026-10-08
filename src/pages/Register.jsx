@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import EmailModal from '../components/EmailModal';
 
 export default function Register() {
-  const { register, currentUser } = useAuth();
+  const { register } = useAuth();
   const { showToast } = useData();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('Nam');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
+
+  // Email simulation modal state
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [sentEmailData, setSentEmailData] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,20 +27,17 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 6) {
-      showToast('Mật khẩu phải có ít nhất 6 ký tự!', false);
+    if (!dob) {
+      showToast('Vui lòng chọn ngày tháng năm sinh!', false);
       return;
     }
 
-    if (password !== confirmPassword) {
-      showToast('Mật khẩu xác nhận không trùng khớp!', false);
-      return;
-    }
-
-    const res = register(fullName, email, password);
+    const res = register({ fullName, dob, gender, email });
     showToast(res.message, res.status);
+    
     if (res.status) {
-      navigate('/dashboard');
+      setSentEmailData(res.emailMessage);
+      setShowEmailModal(true);
     }
   };
 
@@ -47,11 +48,11 @@ export default function Register() {
     }}>
       <div style={{
         background: '#ffffff', borderRadius: '24px',
-        maxWidth: '460px', width: '100%', padding: '40px 36px',
+        maxWidth: '480px', width: '100%', padding: '36px 32px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
       }}>
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
           <div style={{
             width: '40px', height: '40px', borderRadius: '12px',
             background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -63,26 +64,16 @@ export default function Register() {
           <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981' }}>CashFlow</span>
         </div>
 
-        <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
-          Tạo tài khoản mới
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+          Đăng ký tài khoản
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '24px' }}>
-          Bắt đầu hành trình quản lý tài chính thông minh theo thời gian thực
+        <p style={{ color: '#64748b', fontSize: '0.86rem', marginBottom: '22px' }}>
+          Nhập thông tin cá nhân. Mật khẩu tạm thời sẽ được tạo ngẫu nhiên và gửi qua email.
         </p>
 
-        {currentUser && (
-          <div style={{
-            background: '#f0fdf4', border: '1px solid #bbf7d0',
-            borderRadius: '12px', padding: '10px 14px', marginBottom: '18px',
-            fontSize: '0.82rem', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px'
-          }}>
-            <i className="bi bi-info-circle-fill"></i>
-            <span>Đang đăng nhập bằng <b>{currentUser.full_name}</b>. Tạo tài khoản mới sẽ tự động chuyển đổi sang tài khoản mới.</span>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit}>
-          <div className="form-group-field">
+          {/* Họ và tên */}
+          <div className="form-group-field" style={{ marginBottom: '14px' }}>
             <label className="form-label-custom">HỌ VÀ TÊN</label>
             <input
               type="text"
@@ -94,7 +85,37 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-group-field">
+          {/* Ngày sinh & Giới tính cùng một hàng */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+            <div className="form-group-field" style={{ margin: 0 }}>
+              <label className="form-label-custom">NGÀY SINH</label>
+              <input
+                type="date"
+                className="input-custom"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group-field" style={{ margin: 0 }}>
+              <label className="form-label-custom">GIỚI TÍNH</label>
+              <select
+                className="input-custom"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                style={{ cursor: 'pointer' }}
+                required
+              >
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="form-group-field" style={{ marginBottom: '14px' }}>
             <label className="form-label-custom">ĐỊA CHỈ EMAIL</label>
             <input
               type="email"
@@ -106,45 +127,20 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-group-field">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <label className="form-label-custom" style={{ margin: 0 }}>MẬT KHẨU</label>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  background: 'none', border: 'none', color: '#64748b',
-                  fontSize: '0.78rem', cursor: 'pointer', padding: 0
-                }}
-              >
-                {showPassword ? 'Ẩn' : 'Hiện'} mật khẩu
-              </button>
+          {/* Note về mật khẩu ngẫu nhiên qua email */}
+          <div style={{
+            background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px',
+            padding: '12px 14px', marginBottom: '18px', fontSize: '0.82rem', color: '#166534',
+            lineHeight: 1.5, display: 'flex', gap: '10px'
+          }}>
+            <i className="bi bi-shield-lock-fill" style={{ fontSize: '1.1rem', color: '#10b981', flexShrink: 0, marginTop: '2px' }}></i>
+            <div>
+              <b>Mật khẩu ngẫu nhiên bảo mật:</b> Hệ thống sẽ tự động tạo mật khẩu tạm thời gửi tới Email của bạn. Bạn sẽ đăng nhập bằng mật khẩu này và bắt buộc đổi mật khẩu mới ở lần truy cập đầu tiên.
             </div>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className="input-custom"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Tối thiểu 6 ký tự..."
-              required
-              minLength={6}
-            />
           </div>
 
-          <div className="form-group-field">
-            <label className="form-label-custom">XÁC NHẬN MẬT KHẨU</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className="input-custom"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Nhập lại mật khẩu..."
-              required
-              minLength={6}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '24px' }}>
+          {/* Checkbox điều khoản */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '20px' }}>
             <input
               type="checkbox"
               id="terms"
@@ -157,9 +153,9 @@ export default function Register() {
             </label>
           </div>
 
-          <button type="submit" className="btn-action-primary" style={{ marginBottom: '20px' }}>
-            <span>Đăng ký & Bắt đầu ngay</span>
-            <i className="bi bi-arrow-right"></i>
+          <button type="submit" className="btn-action-primary" style={{ marginBottom: '18px' }}>
+            <span>Đăng ký & Nhận mật khẩu qua Email</span>
+            <i className="bi bi-envelope-check"></i>
           </button>
         </form>
 
@@ -170,6 +166,13 @@ export default function Register() {
           </NavLink>
         </div>
       </div>
+
+      {/* Email Inbox Simulator Modal */}
+      <EmailModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        emailData={sentEmailData}
+      />
     </div>
   );
 }

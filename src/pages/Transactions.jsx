@@ -191,8 +191,21 @@ export default function Transactions() {
               className="input-custom"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '38px', background: '#f8fafc' }}
+              style={{ paddingLeft: '38px', paddingRight: searchTerm ? '38px' : '16px', background: '#f8fafc' }}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                style={{
+                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                  border: 'none', background: 'transparent', color: '#94a3b8', cursor: 'pointer'
+                }}
+                title="Xóa tìm kiếm"
+              >
+                <i className="bi bi-x-circle-fill"></i>
+              </button>
+            )}
           </div>
 
           <div style={{ width: '180px' }}>

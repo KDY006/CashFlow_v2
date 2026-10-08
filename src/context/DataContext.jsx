@@ -351,7 +351,11 @@ export function DataProvider({ children }) {
     };
   };
 
-  const consultAI = async (type) => {
+  const consultAI = async (typeOrPayload) => {
+    const isObj = typeof typeOrPayload === 'object' && typeOrPayload !== null;
+    const type = isObj ? (typeOrPayload.type || 'summary') : typeOrPayload;
+    const customQuery = isObj ? typeOrPayload.customQuery : null;
+
     const cooldown = checkAiCooldown();
     if (!cooldown.can_consult) {
       showToast('Bạn đã dùng hết 3 lượt tư vấn trong ngày!', false);
@@ -361,6 +365,7 @@ export function DataProvider({ children }) {
     try {
       const answer = await getFinancialAdvice({
         type,
+        customQuery,
         transactions: userTransactions,
         categories
       });
@@ -369,6 +374,7 @@ export function DataProvider({ children }) {
         id: Date.now(),
         user_id: userId,
         type,
+        custom_question: customQuery,
         content: answer,
         created_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
       };
